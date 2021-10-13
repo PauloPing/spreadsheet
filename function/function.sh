@@ -44,3 +44,28 @@ sqrt ()
     return res
 }
 
+somme ()
+{
+    res=`expr $1 + $2`
+    return res
+}
+
+concat ()
+{
+    res=$1$2
+    return res
+}
+
+length ()
+{
+    res=`expr length $1`
+    return res
+}
+
+size ()
+{
+    res="wc -l < $1"
+}
+
+
+
