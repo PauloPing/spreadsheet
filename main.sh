@@ -3,5 +3,3 @@
 
 ./function-verification/nbParams.sh $@
 test $? -eq 2 && exit 1;
-
-echo "test";
