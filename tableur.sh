@@ -2,6 +2,8 @@
 
 # Groupe de 2   : Louis et Paul 
 
+source ./function/calc.sh
+
 scinSep="\t"
 slinSep="\n"
 inverse=0
@@ -60,6 +62,12 @@ then
   sloutSep=$slinSep
 fi
 
+# To delete the text already present in the file
+if [ -f $resultat ]
+then  
+  > $resultat
+fi
+
 echo "feuille : $feuille"
 echo "resultat : $resultat"
 echo "scinSep : $scinSep"
@@ -67,3 +75,43 @@ echo "slinSep : $slinSep"
 echo "scoutSep : $scoutSep"
 echo "sloutSep : $sloutSep"
 echo "inverse : $inverse"
+
+character=0
+# sed -n '${count}p' hearders.txt => reprendre un fichier au '${count}p' ieme caractère (PAS TEST)
+
+if [ -z $feuille ];
+then 
+  echo "No file for the param -in, writing in the terminal ... "
+else 
+  while read -n1 c; do
+    test "$c" == ''
+    echo $? - $c - $slinSep
+    character=$(($character + 1))
+    if [ -z $resultat ]
+    then
+      echo "No file for the param -out, result in terminal"
+    else 
+      if test "$c" != '=' && test "$c" != $scinSep && test "$c" != $slinSep && test "$c" != ''
+      then
+        printf "$c" >> $resultat
+      elif test "$c" == '='
+      then
+        printf "FUNC" >> $resultat
+      elif test "$c" == $scinSep
+      then
+        printf $scoutSep >> $resultat
+      elif test "$c" == $slinSep 
+      then
+        printf $sloutSep >> $resultat
+      elif test "$c" == ''
+      then 
+        echo 
+        printf '\n' >> $resultat
+      fi
+    fi
+  done < $feuille
+fi
+
+# echo $character
+# res=$(somme 1 2)
+# echo "chifffre : "$res;
