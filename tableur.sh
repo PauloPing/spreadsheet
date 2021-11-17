@@ -84,8 +84,6 @@ then
   echo "No file for the param -in, writing in the terminal ... "
 else 
   while read -n1 c; do
-    test "$c" == ''
-    echo $? - $c - $slinSep
     character=$(($character + 1))
     if [ -z $resultat ]
     then
@@ -100,13 +98,9 @@ else
       elif test "$c" == $scinSep
       then
         printf $scoutSep >> $resultat
-      elif test "$c" == $slinSep 
+      elif [[ "$c" = "$slinSep" || "$c" = '' ]]
       then
         printf $sloutSep >> $resultat
-      elif test "$c" == ''
-      then 
-        echo 
-        printf '\n' >> $resultat
       fi
     fi
   done < $feuille
