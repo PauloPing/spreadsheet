@@ -2,7 +2,9 @@
 
 # Groupe de 2   : Louis et Paul 
 
+
 source ./function/calc.sh
+source ./function/function.sh
 
 scinSep="\t"
 slinSep="\n"
@@ -105,6 +107,9 @@ else
     fi
   done < $feuille
 fi
+
+res=$(getCase 3 2 $feuille $scinSep $slinSep)
+echo "chifffre : "$res;
 
 # echo $character
 # res=$(somme 1 2)
