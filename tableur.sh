@@ -6,11 +6,15 @@
 source ./function/calc.sh
 source ./function/function.sh
 
+feuille=0
+result=0
 scinSep="\t"
 slinSep="\n"
 inverse=0
 
 compteur=0
+
+# check param
 for var in $@
 do
   paramValide=$((compteur % 2))
@@ -28,7 +32,7 @@ do
     then 
       if [[ -f $var ]]
       then
-        resultat=$var
+        result=$var
         else 
         echo "Param for -out is not a file, please enter a valid param or remove it!" && exit 1
       fi
@@ -49,11 +53,13 @@ do
   compteur=$(($compteur + 1));
 done
 
+# Param inverse ### A CORRIGER : FONCTIONNE PAS SI -inverse N'EST PAS EN DERNIER PARAM
 if [[ ${!compteur} == "-inverse" ]]
 then 
   inverse=1
 fi
 
+# Init param scout & slout, if the param isn't enter in shell command (scout = scin & slout = slin)
 if [[ ! $scoutSep ]]
 then 
   scoutSep=$scinSep
@@ -65,13 +71,13 @@ then
 fi
 
 # To delete the text already present in the file
-if [ -f $resultat ]
+if [ -f $result ]
 then  
-  > $resultat
+  > $result
 fi
 
 echo "feuille : $feuille"
-echo "resultat : $resultat"
+echo "result : $result"
 echo "scinSep : $scinSep"
 echo "slinSep : $slinSep"
 echo "scoutSep : $scoutSep"
@@ -85,32 +91,67 @@ if [ -z $feuille ];
 then 
   echo "No file for the param -in, writing in the terminal ... "
 else 
-  while read -n1 c; do
-    character=$(($character + 1))
-    if [ -z $resultat ]
+  nbRow=1
+  row=$(echo "$g" | sed  $nbRow'!d' $feuille )
+  while [ ! "$row" = "$g" ]
+  do      
+    res=$(rowToResultFile $row $scinSep $scoutSep $result)
+    echo $res;
+    if test $result != 0
     then
-      echo "No file for the param -out, result in terminal"
-    else 
-      if test "$c" != '=' && test "$c" != $scinSep && test "$c" != $slinSep && test "$c" != ''
-      then
-        printf "$c" >> $resultat
-      elif test "$c" == '='
-      then
-        printf "FUNC" >> $resultat
-      elif test "$c" == $scinSep
-      then
-        printf $scoutSep >> $resultat
-      elif [[ "$c" = "$slinSep" || "$c" = '' ]]
-      then
-        printf $sloutSep >> $resultat
+      printf "$res$sloutSep" >> $result
+    else
+      if test $sloutSep != '\n'
+      then 
+        echo "$res$sloutSep"
+      else
+        echo "$res"
       fi
     fi
-  done < $feuille
+    nbRow=$(($nbRow + 1))
+    row=$(echo "$g" | sed  $nbRow'!d' calcule )
+  done
 fi
 
-res=$(getCase 3 2 $feuille $scinSep $slinSep)
-echo "chifffre : "$res;
+# res=$(getCase 3 2 $feuille $scinSep $slinSep)
+# echo "chifffre : "$res;
 
 # echo $character
 # res=$(somme 1 2)
 # echo "chifffre : "$res;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# while read -n1 c; do
+  #   character=$(($character + 1))
+  #   if [ -z $result ]
+  #   then
+  #     echo "No file for the param -out, result in terminal"
+  #   else 
+  #     if test "$c" != '=' && test "$c" != $scinSep && test "$c" != $slinSep && test "$c" != ''
+  #     then
+  #       printf "$c" >> $result
+  #     elif test "$c" == '='
+  #     then
+  #       printf "FUNC" >> $result
+  #     elif test "$c" == $scinSep
+  #     then
+  #       printf $scoutSep >> $result
+  #     elif [[ "$c" = "$slinSep" || "$c" = '' ]]
+  #     then
+  #       printf $sloutSep >> $result
+  #     fi
+  #   fi
+  # done < $feuille

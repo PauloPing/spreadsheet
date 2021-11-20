@@ -12,7 +12,7 @@ difference()
 
 produit()
 {
-    expr $1 * $2
+    expr $1 \* $2
 }
 
 division()
