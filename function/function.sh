@@ -1,19 +1,10 @@
 #!/bin/bash
 
-NBR='^[0-9]+'
-getCase(){
-  #  ($1, $2) -> coordinate case
-  #  $3 -> file
-  #  $4 -> -scin sep
-  #  $5 -> -slin sep  
+source ./function/calc.sh 
+source ./function/function_cellule.sh
 
-  if test "$5" = '\n'
-  then
-    sed  $1'!d' $3 | cut -d $4 -f $2
-  else
-    cut -d $5 -f $1 $3 | cut -d $4 -f $2
-  fi
-}
+NBR='(^[+-]?[0-9]*[\.])?[0-9]+$'
+CELLULE='^(L[0-9]*)C[0-9]*$'
 
 getPartOfParam(){
   # $1 => ligne
@@ -24,6 +15,7 @@ getPartOfParam(){
 
   carac=${1:$compteur:1}
   trouv=0
+
   while test "$carac" != ''
   do
     if [[ $carac == ',' && $virgule == 0 ]]
@@ -58,18 +50,23 @@ getPartOfParam(){
     carac=${1:$compteur:1}
   done
 
+  param+=")"
   if test $trouv == 0
   then
-    res=$(echo "$param" | sed 's/^=\([a-z]*\)(//; s/.$//')
-    # CORRIGER ECHO FONCTIONNE PAS POUR LE LN
+    res=$(echo "$param" | sed 's/^\([a-z]*\)(//; s/.$//')
+    echo $res
   fi
 }
+
 
 calcule(){
   
   # $1 -> column without '=' (Ex : =+(2,3) ==> +(2,3))
+  # $2 -> file result 
+  # $3 -> -scout 
+  # $4 -> -slout 
   
-  value=$(echo "$1"| sed 's/^.(//; s/.$//')
+  value=$(echo "$1"| sed 's/^[a-z+-/\^]*(//; s/.$//')
   firstPart=$(getPartOfParam $value 1)
   secondPart=$(getPartOfParam $value 2)
   # firstPart=$(echo "$1" | sed 's/.*(//; s/,.*//');
@@ -77,39 +74,73 @@ calcule(){
   
   # echo "+(*(4, 5),4)" | sed 's/^.(//; s/.$//'         *(4, 5),4
 
-  if ! [[ $firstPart =~ $NBR ]]
+
+  if [[ $firstPart =~ $CELLULE && $secondPart =~ $CELLULE ]]
   then
-    firstPart=$(calcule $firstPart)
-  fi
+    res=$(getValueCellule $firstPart $secondPart $2 $3 $4);
+    if [ "${1:0:5}" = 'somme' ]
+    then
+      res=$(sommeCase $res);
+    fi
+  else
 
-  if ! [[ $secondPart =~ $NBR || $secondPart == "" ]]
-  then
-    secondPart=$(calcule $secondPart)
-  fi
+    if ! [[ $firstPart =~ $NBR ]]
+    then
+      firstPart=$(calcule $firstPart $2 $3 $4)
+    fi
 
-  if [ "${1:0:1}" = '+' ]
-  then
-    res=$(somme $firstPart $secondPart);
+    if ! [[ $secondPart =~ $NBR || $secondPart == "" ]]
+    then
+      secondPart=$(calcule $secondPart $2 $3 $4)
+    fi
 
-  elif [ "${1:0:1}" = '-' ]
-  then 
-    res=$(difference $firstPart $secondPart);
+    if [ ${firstPart:0:1} = '.' ]
+    then 
+      firstPart="0${firstPart}"
+    fi
 
-  elif [ "${1:0:1}" = '*' ]
-  then 
-    res=$(produit $firstPart $secondPart);
+    if [ ${secondPart:0:1} = '.' ]
+    then 
+      secondPart="0${secondPart}"
+    fi
 
-  elif [ "${1:0:1}" = '/' ]
-  then 
-    res=$(division $firstPart $secondPart);
+    if [ "${1:0:1}" = '+' ]
+    then
+      res=$(somme $firstPart $secondPart);
 
-  elif [ "${1:0:1}" = '^' ]
-  then 
-    res=$(puissance $firstPart $secondPart);
+    elif [ "${1:0:1}" = '-' ]
+    then 
+      res=$(difference $firstPart $secondPart);
 
-  elif [ "${1:0:2}" = 'ln' ]
-  then 
-    res=$(ln $firstPart);
+    elif [ "${1:0:1}" = '*' ]
+    then 
+      res=$(produit $firstPart $secondPart);
+
+    elif [ "${1:0:1}" = '/' ]
+    then 
+      res=$(division $firstPart $secondPart);
+
+    elif [ "${1:0:1}" = '^' ]
+    then 
+      res=$(puissance $firstPart $secondPart);
+
+    elif [ "${1:0:2}" = 'ln' ]
+    then 
+      res=$(ln $firstPart);
+    
+    elif [ "${1:0:1}" = 'e' ]
+    then 
+      res=$(exp $firstPart);
+    
+    elif [ "${1:0:4}" = 'sqrt' ]
+    then 
+      res=$(sqrt $firstPart);
+    
+    elif [ "${1:0:1}" = '^' ]
+    then 
+      res=$(puissance $firstPart $secondPart);
+
+    fi
   fi
   echo $res
 
@@ -120,6 +151,7 @@ rowToResultFile(){
   # $2 -> separator column in $feuille
   # $3 -> separator column in $result
   # $4 -> result File 
+  # $5 -> separator lign in $result
 
   nbColumn=1
   ROW=""
@@ -132,7 +164,7 @@ rowToResultFile(){
     fi
     if [ ${column:0:1} = '=' ]
     then 
-      res=$(calcule ${column:1})
+      res=$(calcule ${column:1} $4 $3 $5)
       column=$res;
     fi
     ROW+="${column}"

@@ -2,22 +2,46 @@
 
 somme()
 {
-    expr $1 + $2
+    # expr $1 + $2
+    expr $(bc -l <<<"scale=2; $1 + $2")
 }
 
 difference()
 {
-    expr $1 - $2
+    # expr $1 - $2
+    expr $(bc -l <<<"scale=2; $1 - $2")
 }
 
 produit()
 {
-    expr $1 \* $2
+    # expr $1 \* $2
+    expr $(bc -l <<<"scale=2; $1 * $2")
 }
 
 division()
 {
-    expr $1 / $2
+    # expr $1 / $2
+    expr $(bc -l <<<"scale=2; $1 / $2")
+}
+
+sommeCase(){
+    # $1 ==> group cellule (Ex : 4,5,10,-4,,4,END)
+
+    res=0
+    index=1
+    valueCase=$(echo "$1" | cut -d ',' -f $index) # $(echo "$1" | cut -d $2 -f $nbColumn)
+    while [[ $valueCase != "END" ]]
+    do
+        if [[ $valueCase =~ $NBR ]]
+        then
+            res=$(somme $res $valueCase)
+        else
+            echo ""
+        fi
+        index=$(($index + 1))
+        valueCase=$(echo "$1" | cut -d ',' -f $index)
+    done
+    echo $res
 }
 
 puissance()
@@ -27,7 +51,7 @@ puissance()
     index=1
     while test $index -ne $2
     do 
-        val=$(($val*$res))
+        val=$(produit $val $res)
         index=$(($index+1))
     done
     expr $val
@@ -35,17 +59,19 @@ puissance()
 
 ln()
 {
-    expr $(bc -l <<<"l($1)")
+    # echo "scale=2; l($1)" | bc -l 
+    expr $(bc -l <<<"scale=2; l($1)")
+
 }
 
 exp()
 {
-    expr $(bc -l <<<"e($1)")
+    expr $(bc -l <<<"scale=2; e($1)")
 }
 
 sqrt()
 {
-    expr $(bc -l <<<"sqrt($1)")
+    expr $(bc -l <<<"scale=2; sqrt($1)")
 }
 
 # echo somme 2 1

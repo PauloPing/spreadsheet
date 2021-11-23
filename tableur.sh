@@ -95,13 +95,18 @@ else
   row=$(echo "$g" | sed  $nbRow'!d' $feuille )
   while [ ! "$row" = "$g" ]
   do      
-    res=$(rowToResultFile $row $scinSep $scoutSep $result)
+    res=$(rowToResultFile $row $scinSep $scoutSep $result $sloutSep)
     echo $res;
-    if test $result != 0
+    if test $result != "0"
     then
-      printf "$res$sloutSep" >> $result
+      if test $sloutSep = '\n'
+      then
+        printf "%s\n" ${res} >> $result
+      else
+        printf "%s%c" ${res}${sloutSep} >> $result
+      fi
     else
-      if test $sloutSep != '\n'
+      if test "$sloutSep" != '\n'
       then 
         echo "$res$sloutSep"
       else
