@@ -5,6 +5,8 @@ source ./function/function_cellule.sh
 
 NBR='(^[+-]?[0-9]*[\.])?[0-9]+$'
 CELLULE='^(L[0-9]*)C[0-9]*$'
+# CHAINE='^(L[0-9]*)C[0-9]*$'
+CHAINE='^\"[a-zA-Z0-9]*\"'
 
 getPartOfParam(){
   # $1 => ligne
@@ -74,14 +76,81 @@ calcule(){
   
   # echo "+(*(4, 5),4)" | sed 's/^.(//; s/.$//'         *(4, 5),4
 
-
-  if [[ $firstPart =~ $CELLULE && $secondPart =~ $CELLULE ]]
+  # if [[ $firstPart =~ $CHAINE && $secondPart =~ $CHAINE ]]
+  # then
+    
+  #   if [ "${1:0:6}" = 'concat' ]
+  #   then
+  #     res=$(concatChaine $firstPart $secondPart);
+  #   elif [ "${1:0:6}" = 'length' ]
+  #   then
+  #     if [ "${value:0:6}" = 'concat' ]
+  #     then
+  #       firstPart=$(calcule $value $2 $3 $4)
+  #     fi
+  #     res=$(lengthChaine $firstPart);
+  #   fi
+  if [ "${1:0:9}" = 'subsitute' ]
+  then 
+    thirdPart=$(getPartOfParam $value 3)
+    if ! [[ $firstPart =~ $CHAINE ]]
+    then
+      firstPart=$(calcule $firstPart $2 $3 $4);
+    elif ! [[ $secondPart =~ $CHAINE ]]
+    then
+      secondPart=$(calcule $secondPart $2 $3 $4);
+    elif ! [[ $thirdPart =~ $CHAINE ]]
+    then
+      thirdPart=$(calcule $thirdPart $2 $3 $4);
+    fi
+    res=$(subsituteChaine $firstPart $secondPart $thirdPart);
+  elif [ "${1:0:6}" = 'length' ]
+  then  
+    if [[ $value =~ $CHAINE ]]
+    then
+      res=$(lengthChaine $value);
+    else
+      val=$(calcule $value $2 $3 $4);
+      res=$(lengthChaine $val);
+    fi
+  elif [ "${1:0:6}" = 'concat' ]
   then
+    if  ! [[ $firstPart =~ $CHAINE ]]
+    then
+      firstPart=$(calcule $firstPart $2 $3 $4);
+    fi
+    if ! [[ $secondPart =~ $CHAINE ]]
+    then
+      secondPart=$(calcule $secondPart $2 $3 $4);
+    fi
+    res=$(concatChaine $firstPart $secondPart);
+  elif [[ $firstPart =~ $CELLULE && $secondPart =~ $CELLULE ]]
+  then
+    
     res=$(getValueCellule $firstPart $secondPart $2 $3 $4);
     if [ "${1:0:5}" = 'somme' ]
     then
       res=$(sommeCase $res);
+    elif [ "${1:0:7}" = 'moyenne' ]
+    then
+      res=$(moyenneCase $res);
+    elif [ "${1:0:8}" = 'variance' ]
+    then
+      res=$(varianceCase $res);
+    elif [ "${1:0:9}" = 'ecarttype' ]
+    then
+      res=$(ecartTypeCase $res);
+    elif [ "${1:0:7}" = 'mediane' ]
+    then
+      res=$(medianeCase $res);
+    elif [ "${1:0:4}" = 'mini' ]
+    then
+      res=$(miniCase $res);
+    elif [ "${1:0:4}" = 'maxi' ]
+    then
+      res=$(maxiCase $res);
     fi
+  
   else
 
     if ! [[ $firstPart =~ $NBR ]]
@@ -94,6 +163,11 @@ calcule(){
       secondPart=$(calcule $secondPart $2 $3 $4)
     fi
 
+    if ! [[ $secondPart =~ $NBR || $secondPart == "" ]]
+    then
+      firstPart=$(calcule $secondPart $2 $3 $4)
+    fi
+
     if [ ${firstPart:0:1} = '.' ]
     then 
       firstPart="0${firstPart}"
@@ -103,6 +177,7 @@ calcule(){
     then 
       secondPart="0${secondPart}"
     fi
+
 
     if [ "${1:0:1}" = '+' ]
     then
@@ -139,8 +214,8 @@ calcule(){
     elif [ "${1:0:1}" = '^' ]
     then 
       res=$(puissance $firstPart $secondPart);
-
     fi
+
   fi
   echo $res
 
