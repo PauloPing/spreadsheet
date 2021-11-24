@@ -95,7 +95,7 @@ else
   row=$(echo "$g" | sed  $nbRow'!d' $feuille )
   while [ ! "$row" = "$g" ]
   do      
-    res=$(rowToResultFile $row $scinSep $scoutSep $result $sloutSep)
+    res=$(rowToResultFile "$row" $scinSep $scoutSep $result $sloutSep)
     echo $res;
     if test $result != "0"
     then
