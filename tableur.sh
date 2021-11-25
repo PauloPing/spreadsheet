@@ -76,6 +76,7 @@ then
   > $result
 fi
 
+
 echo "feuille : $feuille"
 echo "result : $result"
 echo "scinSep : $scinSep"
@@ -87,36 +88,81 @@ echo "inverse : $inverse"
 character=0
 # sed -n '${count}p' hearders.txt => reprendre un fichier au '${count}p' ieme caractère (PAS TEST)
 
-if [ -z $feuille ];
+if test $feuille = 0
 then 
-  echo "No file for the param -in, writing in the terminal ... "
-else 
-  nbRow=1
-  row=$(echo "$g" | sed  $nbRow'!d' $feuille )
-  while [ ! "$row" = "$g" ]
-  do      
-    res=$(rowToResultFile "$row" $scinSep $scoutSep $result $sloutSep)
-    echo $res;
-    if test $result != "0"
+  ligne=""
+  feuille=""
+  echo "No file for the param -in, writing in the terminal... Write an empty line to validate!"
+  read ligne
+  while test "$ligne" != ""
+  do
+    if test $slinSep = '\n' 
     then
-      if test $sloutSep = '\n'
-      then
-        printf "%s\n" ${res} >> $result
-      else
-        printf "%s%c" ${res}${sloutSep} >> $result
-      fi
-    else
-      if test "$sloutSep" != '\n'
-      then 
-        echo "$res$sloutSep"
-      else
-        echo "$res"
-      fi
+      ligne="$ligne$"
     fi
-    nbRow=$(($nbRow + 1))
-    row=$(echo "$g" | sed  $nbRow'!d' calcule )
+    feuille+="$ligne"
+    ligne="" 
+    read ligne
   done
+  # echo -e $feuille
 fi
+
+nbRow=1
+if [[ -f $feuille ]]
+then
+  if test $slinSep != '\n'
+  then
+    row=$(cat $feuille | cut -d"$slinSep" -f $nbRow)
+  else
+    row=$(echo "$g" | sed  $nbRow'!d' $feuille )
+  fi
+else
+  sepa="$"
+  if test $slinSep != '\n'
+  then
+    sepa="€"
+  fi
+  row=$(echo -n $feuille | cut -d"$sepa" -f $nbRow)
+fi
+
+while [ ! "$row" = "$g" ]
+do      
+  res=$(rowToResultFile "$row" $scinSep $scoutSep $result $sloutSep)
+  echo $res;
+  if test $result != "0"
+  then
+    if test $sloutSep = '\n'
+    then
+      printf "%s\n" ${res} >> $result
+    else
+      printf "%s%c" ${res}${sloutSep} >> $result
+    fi
+  else
+    if test "$sloutSep" != '\n'
+    then 
+      echo "$res$sloutSep"
+    else
+      echo "$res"
+    fi
+  fi
+  nbRow=$(($nbRow + 1))
+  if [[ -f $feuille ]]
+  then
+    if test $slinSep != '\n'
+    then
+      row=$(cat $feuille | cut -d"$slinSep" -f $nbRow)
+    else
+      row=$(echo "$g" | sed  $nbRow'!d' $feuille )
+    fi
+  else
+    sepa="$"
+    if test $slinSep != '\n'
+    then
+      sepa="€"
+    fi
+    row=$(echo -n $feuille | cut -d"$sepa" -f $nbRow)
+  fi
+done
 
 # res=$(getCase 3 2 $feuille $scinSep $slinSep)
 # echo "chifffre : "$res;

@@ -10,6 +10,7 @@ getCase(){
 
   if test "$5" = '\n'
   then
+    # line=$(sed  $1'!d' $3)
     sed  $1'!d' $3 | cut -d $4 -f $2 | cut -d "\\" -f 1
   else
     cut -d $5 -f $1 $3 | cut -d $4 -f $2

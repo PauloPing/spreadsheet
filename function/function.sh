@@ -95,15 +95,29 @@ calcule(){
     #   secondPart=$(getCase ${secondPart:1:1} ${secondPart:3:1} $2 $3 $4)
     # fi
 
-    if [ "${1:0:4}" = 'size' ]
+    if [ "${1:0:1}" = '[' ]
+    then
+    # echo "---- ${1:0:6} ---- "
+      if [[ "${1:1:4}" =~ $CELLULE && "${1:5:1}" = ']' ]]
+      then
+        res=$(getCase ${1:2:1} ${1:4:1} $2 $3 $4)
+      else
+        echo "ERROR"
+      fi
+    elif [ "${1:0:4}" = 'size' ]
     then
       if [[ -f $firstPart ]]
       then
         res=$(wc -c < $firstPart)
       elif [[ $firstPart =~ $CELLULE ]]
       then
-        firstPart=$(getCase ${firstPart:1:1} ${firstPart:3:1} $2 $3 $4)
-        res=$(wc -c < $firstPart)
+        firstPart=$(getCase ${firstPart:1:1} ${firstPart:3} $2 $3 $4)
+        if [[ -f $firstPart ]]
+        then
+          res=$(wc -c < "$firstPart")
+        else
+          res=0;
+        fi
       else
         res=0;
       fi
@@ -187,20 +201,17 @@ calcule(){
       if [[ $firstPart =~ $CELLULE ]]
       then
         firstPart=$(getCase ${firstPart:1:1} ${firstPart:3:1} $2 $3 $4)
-      fi 
-
-      if [[ $secondPart =~ $CELLULE ]]
-      then
-        secondPart=$(getCase ${secondPart:1:1} ${secondPart:3:1} $2 $3 $4)
-      fi
       
-      if ! [[ "$firstPart" =~ $NBR ]]
+      elif ! [[ "$firstPart" =~ $NBR ]]
       then
         # echo "$firstPart"
         firstPart=$(calcule "$firstPart" $2 $3 $4)
       fi
 
-      if ! [[ "$secondPart" =~ $NBR || $secondPart == "" ]]
+      if [[ $secondPart =~ $CELLULE ]]
+      then
+        secondPart=$(getCase ${secondPart:1:1} ${secondPart:3:1} $2 $3 $4)
+      elif ! [[ "$secondPart" =~ $NBR || $secondPart == "" ]]
       then
         secondPart=$(calcule "$secondPart" $2 $3 $4)
       fi
@@ -274,7 +285,7 @@ rowToResultFile(){
 
   nbColumn=1
   ROW=""
-  column=$(echo $1 | cut -d $2 -f $nbColumn)
+  column=$(echo "${1}$2" | cut -d "$2" -f $nbColumn)
   while [ -n "$column" ]
   do
     if test $nbColumn != 1
@@ -288,7 +299,7 @@ rowToResultFile(){
     fi
     ROW+="${column}"
     nbColumn=$(($nbColumn + 1));
-    column=$(echo "$1" | cut -d "$2" -f $nbColumn)
+    column=$(echo "${1}$2" | cut -d "$2" -f $nbColumn)
   done
   echo $ROW;
 }
