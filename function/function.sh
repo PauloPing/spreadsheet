@@ -10,56 +10,41 @@ CHAINE='^\"[a-zA-Z0-9]*\"'
 
 getPartOfParam(){
   # $1 => ligne
-  # $2 -> Param 1 or 2 
-  param=""
+  # $2 -> Param 1 or 2 or 3
   compteur=0
-  virgule=0
-
   carac=${1:$compteur:1}
+  virgule=$(($2 - 1))
+  nbCalcule=0
+  param=""
   trouv=0
-
-  while test "$carac" != ''
+  while [[ "$carac" != '' && $trouv -eq 0 ]] 
   do
-    if [[ $carac == ',' && $virgule == 0 ]]
+    if  [[ "$carac" == '(' ]]
     then 
-      if [[ $2 == 1 ]]
-      then 
-        trouv=1
-        echo $param
-      else
-        param=""
-        while test "$carac" != ''
-        do
-          compteur=$(($compteur + 1))
-          carac=${1:$compteur:1}
-          param+="$carac"
-        done
-        trouv=1
-        echo $param
-      fi
+      nbCalcule=$(($nbCalcule + 1))
+    # elif [[ $carac == ',' && $nbCalcule -eq 0 ]]
+    # then 
+    #   virgule=$(($virgule - 1))
+    elif [[ "$carac" == ')' ]]
+    then 
+      nbCalcule=$(($nbCalcule - 1))
+    fi
+
+    if [[ "$virgule" -eq 0 && "$nbCalcule" -eq 0 && "$carac" == ',' ]]
+    then 
+      trouv=1
+    elif [[ "$carac" == ',' && $nbCalcule -eq 0 ]]
+    then 
+      param=""
+      virgule=$(($virgule - 1))
     else
       param+="$carac"
-
-      if  test "$carac" == '('
-      then 
-        virgule=$(($virgule + 1))
-      elif test "$carac" == ')'
-      then
-        virgule=$(($virgule - 1))
-      fi
     fi
     compteur=$(($compteur + 1))
     carac=${1:$compteur:1}
   done
-
-  param+=")"
-  if test $trouv == 0
-  then
-    res=$(echo "$param" | sed 's/^\([a-z]*\)(//; s/.$//')
-    echo $res
-  fi
+  echo "$param"
 }
-
 
 calcule(){
   
@@ -69,7 +54,7 @@ calcule(){
   # $4 -> -slout 
   # echo "OK"
   trouv=1
-  value=$(echo "$1"| sed 's/^[a-z+-/\^]*(//; s/.$//')
+  value=$(echo "$1"| sed 's/^[a-z+-/\^\*]*(//; s/.$//')
   if [ "${1:0:5}" = 'shell' ]
   then
     trouv=0
@@ -84,7 +69,9 @@ calcule(){
   then
     firstPart=$(getPartOfParam "$value" 1)
     secondPart=$(getPartOfParam "$value" 2)
-
+    # echo $value
+    # echo "$ $firstPart / $secondPart $ ))"
+    # echo "(( $firstPart // $secondPart ))"
     # if [[ $firstPart =~ $CELLULE ]]
     # then
     #   firstPart=$(getCase ${firstPart:1:1} ${firstPart:3:1} $2 $3 $4)
@@ -98,9 +85,16 @@ calcule(){
     if [ "${1:0:1}" = '[' ]
     then
     # echo "---- ${1:0:6} ---- "
-      if [[ "${1:1:4}" =~ $CELLULE && "${1:5:1}" = ']' ]]
+      cellule=$(echo `expr $1 : "\(.*\).$"`)
+      if [[ "${cellule:1}" =~ $CELLULE && ${1:(-1)} = ']' ]]
       then
-        res=$(getCase ${1:2:1} ${1:4:1} $2 $3 $4)
+        ligne=$( echo "${cellule:1}" | cut -d c -f 1 )
+        colonne=$( echo "${cellule:1}" | cut -d c -f 2 )
+        res=$(getCase ${ligne:1} ${colonne:0} $2 $3 $4)
+        if [[ $res = '' ]]
+        then 
+          res="=[${ligne}c${colonne}]"
+        fi
       else
         echo "ERROR"
       fi
@@ -111,12 +105,13 @@ calcule(){
         res=$(wc -c < $firstPart)
       elif [[ $firstPart =~ $CELLULE ]]
       then
-        firstPart=$(getCase ${firstPart:1:1} ${firstPart:3} $2 $3 $4)
-        if [[ -f $firstPart ]]
+        res=$(getCase ${firstPart:1:1} ${firstPart:3} $2 $3 $4)
+        if [[ -f $res ]]
         then
-          res=$(wc -c < "$firstPart")
-        else
-          res=0;
+          res=$(wc -c < "$res")
+        elif [[ $res = '' ]]
+        then
+          res="=size($firstPart)"
         fi
       else
         res=0;
@@ -129,9 +124,14 @@ calcule(){
         res=$(($res + 1))
       elif [[ $firstPart =~ $CELLULE ]]
       then
-        firstPart=$(getCase ${firstPart:1:1} ${firstPart:3:1} $2 $3 $4)
-        res=$(wc -l < $firstPart)
-        res=$(($res + 1))
+        res=$(getCase ${firstPart:1:1} ${firstPart:3:1} $2 $3 $4)
+        if [[ $res = '' ]]
+        then
+          res="=line($firstPart)"
+        else
+          res=$(wc -l < $res)
+          res=$(($res + 1))
+        fi
       else 
         res=0
       fi
@@ -201,7 +201,7 @@ calcule(){
       if [[ $firstPart =~ $CELLULE ]]
       then
         firstPart=$(getCase ${firstPart:1:1} ${firstPart:3:1} $2 $3 $4)
-      
+
       elif ! [[ "$firstPart" =~ $NBR ]]
       then
         # echo "$firstPart"
@@ -231,9 +231,27 @@ calcule(){
         secondPart="0${secondPart}"
       fi
 
-
-      if [ "${1:0:1}" = '+' ]
+      if ! [[ "$firstPart" =~ $NBR && "$secondPart" =~ $NBR ]]
       then
+        if [[ "${firstPart:0:1}" = '=' ]]
+        then
+          part1=${firstPart:1}
+        else
+          part1=$firstPart
+        fi
+        
+        if [[ "${secondPart:0:1}" = '=' ]]
+        then
+          part2=${secondPart:1}
+        else
+          part2=$secondPart
+        fi
+
+        res="=${1:0:1}($part1,$part2)"
+        
+      elif [ "${1:0:1}" = '+' ]
+      then
+        # res="$firstPart-$secondPart"
         res=$(somme $firstPart $secondPart);
         # echo "$firstPart === $secondPart"
 
@@ -244,6 +262,7 @@ calcule(){
       elif [ "${1:0:1}" = '*' ]
       then 
         res=$(produit $firstPart $secondPart);
+        # res=$firstPart
 
       elif [ "${1:0:1}" = '/' ]
       then 

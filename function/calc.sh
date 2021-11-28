@@ -2,6 +2,7 @@
 
 somme(){
     # expr $1 + $2
+    # echo "(( $1-$2 ))"
     expr $(bc -l <<<"scale=2; $1 + $2")
 }
 
@@ -193,18 +194,28 @@ medianeCase(){
 
         for (( i=$(($elt + 1)); i <= $nbNombre; i++ ));
         do
-            value=$(echo "${mini} > ${nombre[$i]}" | bc )
-            if [ "$value" = "1" ] #[[ $value -eq 1 ]] ${nombre[$i]} $mini
+            # value=$(bc <<< "${mini} - ${nombre[$i]}")
+            # if [[ $(echo "${mini} > ${nombre[$i]}" | bc) = 1 ]]
+            if [[ `echo "${mini} > ${nombre[$i]}" | bc` -eq 1 ]]
             then
                mini=${nombre[$i]}
                indexMini=$i
             fi
         done
         nombre[$indexMini]=${nombre[$elt]}
-        nombre[$elt]=$mini
+        nombre[$elt]=${mini}
         elt=$(($elt + 1))
     done
-    echo ${nombre[*]}
+    index=$(($nbNombre / 2))
+    indexPlus1=$(($index + 1))
+    if [[ `echo "$nbNombre % 2" | bc` -eq 0 ]]
+    then 
+        res=$(somme ${nombre[index]} ${nombre[indexPlus1]})
+        echo $(division $res 2)
+    else
+        echo "${nombre[$index]}"
+    fi
+    # echo "${nombre[*]}"
 }
 
 ln(){
@@ -238,8 +249,10 @@ subsituteChaine(){
     # $2 -> chaine 2 (Ex : aa)
     # $3 -> chaine 3 (Ex : dd)
 
-    # EXEMPLE : (aabbccaa ==> ddbbccdd)
-    echo "PREMIER : $1 DEUX :$2 TROIS : $3"
+    chaine1=$(echo `expr $2 : "\(.*\).$"`)
+    chaine2=$(echo `expr $3 : "\(.*\).$"`)
+    res=$(echo "$1" | sed "s/${chaine1:1}/${chaine2:1}/g")
+    echo $res
 }
 
 # echo somme 2 1

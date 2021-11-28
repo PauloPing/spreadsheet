@@ -1,17 +1,72 @@
-1:5.5:-1
-=-(5,9):1:=+(3,ln(1))
-=+(+(.5,ln(1)),4):=-(+(somme(l1c1,l2c4),4),7.70):=variance(l1c1,l2c4):=maxi(l1c1,l2c4)
+1:5.5:-1:=+(4,ln(+(-.5765,/(16,sqrt(+(240,^(2,3))))))):8
+=-(5,9):1:=+(3,ln(1)):10
+=+(+(-.5,ln(1)),4):=-(+(somme(l1c1,l2c4),4),7.70):=variance(l1c1,l2c4):=maxi(l1c1,l2c4)
 1:=length(concat(concat("te","st"),concat("O",concat("O","K")))):=concat(concat("te","st"),concat("O",concat("O","K")))
 1:=+(size(calcule),line(calcule)):=shell(expr 12 + 89)
-1:=+(+(somme(l1c1,l2c4),4),7.70):=[l4c3]
-
+1:=+(+(somme(l1c1,l2c4),4),7.70):=[l9c3]
+=concat(subsitute("aabbccaa",concat("a","a"),"dd"),"2222")
 =+(3,5)
-1
+1:5
 2
-3
+3:=size(l1c6):=+([l1c6],+(123,543))
 =+(3,5)
 
-
+1:2:3€4:5:=+(34,5)€1:=[l2c4]:3€=ln(-(+(18,3),20))
 
 =mediane(L1C1,L2C4)
 A FAIRE ERREUR 
+
+
+
+
+getPartOfParam(){
+  # $1 => ligne
+  # $2 -> Param 1 or 2 
+  param=""
+  compteur=0
+  virgule=0
+
+  carac=${1:$compteur:1}
+  trouv=0
+
+  while test "$carac" != ''
+  do
+    if [[ $carac == ',' && $virgule == 0 ]]
+    then 
+      if [[ $2 == 1 ]]
+      then 
+        trouv=1
+        echo $param
+      else
+        param=""
+        while test "$carac" != ''
+        do
+          compteur=$(($compteur + 1))
+          carac=${1:$compteur:1}
+          param+="$carac"
+        done
+        trouv=1
+        echo $param
+      fi
+    else
+      param+="$carac"
+
+      if  test "$carac" == '('
+      then 
+        virgule=$(($virgule + 1))
+      elif test "$carac" == ')'
+      then
+        virgule=$(($virgule - 1))
+      fi
+    fi
+    compteur=$(($compteur + 1))
+    carac=${1:$compteur:1}
+  done
+
+  param+=")"
+  if test $trouv == 0
+  then
+    res=$(echo "$param" | sed 's/^\([a-z]*\)(//; s/.$//')
+    echo $res
+  fi
+}

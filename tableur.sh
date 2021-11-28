@@ -88,6 +88,8 @@ echo "inverse : $inverse"
 character=0
 # sed -n '${count}p' hearders.txt => reprendre un fichier au '${count}p' ieme caractère (PAS TEST)
 
+premierCalculte=""
+
 if test $feuille = 0
 then 
   ligne=""
@@ -128,11 +130,12 @@ fi
 while [ ! "$row" = "$g" ]
 do      
   res=$(rowToResultFile "$row" $scinSep $scoutSep $result $sloutSep)
-  echo $res;
+  # echo $res;
   if test $result != "0"
   then
     if test $sloutSep = '\n'
     then
+      premierCalculte+="${res}\n"
       printf "%s\n" ${res} >> $result
     else
       printf "%s%c" ${res}${sloutSep} >> $result
@@ -163,6 +166,80 @@ do
     row=$(echo -n $feuille | cut -d"$sepa" -f $nbRow)
   fi
 done
+
+echo -e $premierCalculte >> test2
+## JE PEUX ÉCRIRE AVEC ÇA DANS LE FICHIER POUR
+## AVOIR LES \n (VOIR FICHIER TEST2)
+
+
+
+
+#### TEST ######
+
+# nbRow=1
+# printf "%s\n" "${premierCalculte}" >> $feuille
+
+# if [[ -f $feuille ]]
+# then
+#   if test $slinSep != '\n'
+#   then
+#     row=$(cat $feuille | cut -d"$slinSep" -f $nbRow)
+#   else
+#     row=$(echo "$g" | sed  $nbRow'!d' $feuille )
+#   fi
+# else
+#   sepa="$"
+#   if test $slinSep != '\n'
+#   then
+#     sepa="€"
+#   fi
+#   row=$(echo -n $feuille | cut -d"$sepa" -f $nbRow)
+# fi
+
+# while [ ! "$row" = "$g" ]
+# do      
+#   res=$(rowToResultFile "$row" $scinSep $scoutSep $result $sloutSep)
+#   # echo $res;
+#   if test $result != "0"
+#   then
+#     if test $sloutSep = '\n'
+#     then
+#       printf "%s\n" ${res} >> $result
+#     else
+#       printf "%s%c" ${res}${sloutSep} >> $result
+#     fi
+#   else
+#     if test "$sloutSep" != '\n'
+#     then 
+#       echo "$res$sloutSep"
+#     else
+#       echo "$res"
+#     fi
+#   fi
+#   nbRow=$(($nbRow + 1))
+#   if [[ -f $feuille ]]
+#   then
+#     if test $slinSep != '\n'
+#     then
+#       row=$(cat $feuille | cut -d"$slinSep" -f $nbRow)
+#     else
+#       row=$(echo "$g" | sed  $nbRow'!d' $feuille )
+#     fi
+#   else
+#     sepa="$"
+#     if test $slinSep != '\n'
+#     then
+#       sepa="€"
+#     fi
+#     row=$(echo -n $feuille | cut -d"$sepa" -f $nbRow)
+#   fi
+# done
+
+
+
+
+
+
 
 # res=$(getCase 3 2 $feuille $scinSep $slinSep)
 # echo "chifffre : "$res;
