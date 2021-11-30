@@ -6,6 +6,8 @@
 1:=+(+(somme(l1c1,l2c4),4),7.70):=[l9c3]
 =concat(subsitute("aabbccaa",concat("a","a"),"dd"),"2222")
 =+(3,5)
-1:5
+1:5:=[l7c1]
 2
+=somme(l1c1,l2c5)
 3:=size(l1c6):=+([l1c6],+(123,543))
+=+(3,5)

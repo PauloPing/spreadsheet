@@ -1,6 +1,7 @@
 #!/bin/bash
 
 NBR_CASE='^[0-9]*$'
+CELLULE='^\[(l[0-9]*)c[0-9]*\]$'
 
 getCase(){
   #  ($1, $2) -> coordinate case
@@ -10,11 +11,17 @@ getCase(){
 
   if test "$5" = '\n'
   then
-    line=$(sed  $1'!d' $3)
+    line=$(sed  $1'!d' "$3")
     line="$line$4"
-    res=$(echo "$line" | cut -d $4 -f $2 | cut -d "\\" -f 1)
+    res=$(echo "$line" | cut -d "$4" -f "$2" | cut -d "\\" -f 1)
+    # res="line $line"
   else
-    res=$(echo cut -d $5 -f $1 $3 | cut -d $4 -f $2)
+    if [ -f $3 ]
+    then
+      res=$(cut -d "$5" -f "$1" "$3" | cut -d "$4" -f "$2")
+    else
+      res=$(echo "$3" | cut -d "$5" -f "$1" | cut -d "$4" -f "$2" | cut -d "\\" -f 1)
+    fi
   fi
   # if [[ $res = '' ]]
   # then
@@ -29,8 +36,12 @@ getValueCellule(){
     # $3 ==> file 
     # $4 ==> scout
     # $5 ==> slout
+    # $6 ==> line number in file
 
     res=""
+
+    valid=0
+    noCellule=1
 
     ligneCellule1="${1:1:1}"
     ligneCellule2="${2:1:1}"
@@ -44,8 +55,22 @@ getValueCellule(){
         colonne=$colonneCellule1
         while [[ $colonne -le $colonneCellule2 ]]
         do
-          res+=$(getCase $ligneCellule1 $colonne $3 $4 $5);
-          res+=","
+          value=$(getCase $ligneCellule1 $colonne $3 $4 $5);
+          if [[ "$ligneCellule1" -eq "$6" || "$ligneCellule2" -eq "$6" ]]
+          then 
+            if [[ "$value" = '' ]]
+            then 
+              noCellule=0
+            fi
+          fi
+          if [ "$value" != '' ]
+          then
+            valid=1
+          elif [[ $value =~ $CELLULE ]]
+          then
+            noCellule=0
+          fi
+          res+="$value,"
           colonne=$(($colonne + 1))
         done
         colonne=colonneCellule1;
@@ -53,5 +78,10 @@ getValueCellule(){
       done
       res+="END"
     fi
-    echo $res
+    if [[ $valid -eq 1 && $noCellule -eq 1 ]]
+    then
+      echo $res
+    else
+      echo "NULL"
+    fi
 }

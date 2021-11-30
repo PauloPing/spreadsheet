@@ -51,7 +51,8 @@ calcule(){
   # $1 -> column without '=' (Ex : =+(2,3) ==> +(2,3))
   # $2 -> file result 
   # $3 -> -scout 
-  # $4 -> -slout 
+  # $4 -> -slout
+  # $5 -> line number of file
   # echo "OK"
   trouv=1
   value=$(echo "$1"| sed 's/^[a-z+-/\^\*]*(//; s/.$//')
@@ -105,7 +106,9 @@ calcule(){
         res=$(wc -c < $firstPart)
       elif [[ $firstPart =~ $CELLULE ]]
       then
-        res=$(getCase ${firstPart:1:1} ${firstPart:3} $2 $3 $4)
+        ligne=$( echo "${firstPart:1}" | cut -d c -f 1 )
+        colonne=$( echo "${firstPart:1}" | cut -d c -f 2 )
+        res=$(getCase ${ligne:0} ${colonne:0} $2 $3 $4)
         if [[ -f $res ]]
         then
           res=$(wc -c < "$res")
@@ -124,7 +127,9 @@ calcule(){
         res=$(($res + 1))
       elif [[ $firstPart =~ $CELLULE ]]
       then
-        res=$(getCase ${firstPart:1:1} ${firstPart:3:1} $2 $3 $4)
+        ligne=$( echo "${firstPart:1}" | cut -d c -f 1 )
+        colonne=$( echo "${firstPart:1}" | cut -d c -f 2 )
+        res=$(getCase ${ligne:0} ${colonne:0} $2 $3 $4)
         if [[ $res = '' ]]
         then
           res="=line($firstPart)"
@@ -172,10 +177,15 @@ calcule(){
     elif [[ $firstPart =~ $CELLULE && $secondPart =~ $CELLULE ]]
     then
       
-      res=$(getValueCellule $firstPart $secondPart $2 $3 $4);
+      res=$(getValueCellule $firstPart $secondPart $2 $3 $4 $5);
       if [ "${1:0:5}" = 'somme' ]
       then
-        res=$(sommeCase $res);
+        if [ "$res" = 'NULL' ]
+        then 
+          res="=somme($firstPart,$secondPart)"
+        else
+          res=$(sommeCase $res);
+        fi
       elif [ "${1:0:7}" = 'moyenne' ]
       then
         res=$(moyenneCase $res);
@@ -304,6 +314,7 @@ rowToResultFile(){
 
   nbColumn=1
   ROW=""
+  indexRow=1
   column=$(echo "${1}$2" | cut -d "$2" -f $nbColumn)
   while [ -n "$column" ]
   do
@@ -311,12 +322,13 @@ rowToResultFile(){
     then 
       ROW+="$3"
     fi
-    if [ ${column:0:1} = '=' ]
+    if [[ ${column:0:1} = '=' ]]
     then
-      res=$(calcule "${column:1}" $4 $3 $5)
+      res=$(calcule "${column:1}" $4 $2 $5 $indexRow)
       column=$res;
     fi
     ROW+="${column}"
+    indexRow=$(($indexRow + 1))
     nbColumn=$(($nbColumn + 1));
     column=$(echo "${1}$2" | cut -d "$2" -f $nbColumn)
   done

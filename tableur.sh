@@ -122,22 +122,23 @@ else
   sepa="$"
   if test $slinSep != '\n'
   then
-    sepa="€"
+    sepa="$slinSep"
   fi
   row=$(echo -n $feuille | cut -d"$sepa" -f $nbRow)
 fi
 
 while [ ! "$row" = "$g" ]
 do      
-  res=$(rowToResultFile "$row" $scinSep $scoutSep $result $sloutSep)
+  res=$(rowToResultFile "$row" $scinSep $scinSep $result $sloutSep)
   # echo $res;
   if test $result != "0"
   then
     if test $sloutSep = '\n'
     then
-      premierCalculte+="${res}\n"
+      premierCalculte+="${res}$"
       printf "%s\n" ${res} >> $result
     else
+      premierCalculte+="${res}${sloutSep}"
       printf "%s%c" ${res}${sloutSep} >> $result
     fi
   else
@@ -161,125 +162,45 @@ do
     sepa="$"
     if test $slinSep != '\n'
     then
-      sepa="€"
+      sepa="$slinSep"
     fi
     row=$(echo -n $feuille | cut -d"$sepa" -f $nbRow)
   fi
 done
 
-echo -e $premierCalculte >> test2
-## JE PEUX ÉCRIRE AVEC ÇA DANS LE FICHIER POUR
-## AVOIR LES \n (VOIR FICHIER TEST2)
+feuille=$premierCalculte
 
 
+nbRow=1
+sepa="$"
+if test $slinSep != '\n'
+then
+  sepa="$slinSep"
+fi
+row=$(echo -n $feuille | cut -d"$sepa" -f $nbRow)
 
+> $result
 
-#### TEST ######
-
-# nbRow=1
-# printf "%s\n" "${premierCalculte}" >> $feuille
-
-# if [[ -f $feuille ]]
-# then
-#   if test $slinSep != '\n'
-#   then
-#     row=$(cat $feuille | cut -d"$slinSep" -f $nbRow)
-#   else
-#     row=$(echo "$g" | sed  $nbRow'!d' $feuille )
-#   fi
-# else
-#   sepa="$"
-#   if test $slinSep != '\n'
-#   then
-#     sepa="€"
-#   fi
-#   row=$(echo -n $feuille | cut -d"$sepa" -f $nbRow)
-# fi
-
-# while [ ! "$row" = "$g" ]
-# do      
-#   res=$(rowToResultFile "$row" $scinSep $scoutSep $result $sloutSep)
-#   # echo $res;
-#   if test $result != "0"
-#   then
-#     if test $sloutSep = '\n'
-#     then
-#       printf "%s\n" ${res} >> $result
-#     else
-#       printf "%s%c" ${res}${sloutSep} >> $result
-#     fi
-#   else
-#     if test "$sloutSep" != '\n'
-#     then 
-#       echo "$res$sloutSep"
-#     else
-#       echo "$res"
-#     fi
-#   fi
-#   nbRow=$(($nbRow + 1))
-#   if [[ -f $feuille ]]
-#   then
-#     if test $slinSep != '\n'
-#     then
-#       row=$(cat $feuille | cut -d"$slinSep" -f $nbRow)
-#     else
-#       row=$(echo "$g" | sed  $nbRow'!d' $feuille )
-#     fi
-#   else
-#     sepa="$"
-#     if test $slinSep != '\n'
-#     then
-#       sepa="€"
-#     fi
-#     row=$(echo -n $feuille | cut -d"$sepa" -f $nbRow)
-#   fi
-# done
-
-
-
-
-
-
-
-# res=$(getCase 3 2 $feuille $scinSep $slinSep)
-# echo "chifffre : "$res;
-
-# echo $character
-# res=$(somme 1 2)
-# echo "chifffre : "$res;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# while read -n1 c; do
-  #   character=$(($character + 1))
-  #   if [ -z $result ]
-  #   then
-  #     echo "No file for the param -out, result in terminal"
-  #   else 
-  #     if test "$c" != '=' && test "$c" != $scinSep && test "$c" != $slinSep && test "$c" != ''
-  #     then
-  #       printf "$c" >> $result
-  #     elif test "$c" == '='
-  #     then
-  #       printf "FUNC" >> $result
-  #     elif test "$c" == $scinSep
-  #     then
-  #       printf $scoutSep >> $result
-  #     elif [[ "$c" = "$slinSep" || "$c" = '' ]]
-  #     then
-  #       printf $sloutSep >> $result
-  #     fi
-  #   fi
-  # done < $feuille
+while [ ! "$row" = "$g" ]
+do      
+  res=$(rowToResultFile "$row" $scinSep $scoutSep $premierCalculte '$')
+  echo "$res"
+  if test $result != "0"
+  then
+    if test $sloutSep = '\n'
+    then
+      printf "%s\n" ${res} >> $result
+    else
+      printf "%s%c" ${res}${sloutSep} >> $result
+    fi
+  else
+    if test "$sloutSep" != '\n'
+    then 
+      echo "$res$sloutSep"
+    else
+      echo "$res"
+    fi
+  fi
+  nbRow=$(($nbRow + 1))
+  row=$(echo -n $feuille | cut -d"$sepa" -f $nbRow)
+done

@@ -50,9 +50,9 @@ sommeCase(){
     res=0
     index=1
     valueCase=$(echo "$1" | cut -d ',' -f $index) # $(echo "$1" | cut -d $2 -f $nbColumn)
-    while [[ $valueCase != "END" ]]
+    while [[ "$valueCase" != "END" ]]
     do
-        if [[ $valueCase =~ $NBR ]]
+        if [[ "$valueCase" =~ $NBR ]]
         then
             res=$(somme $res $valueCase)
         # else
