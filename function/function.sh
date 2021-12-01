@@ -49,18 +49,19 @@ getPartOfParam(){
 calcule(){
   
   # $1 -> column without '=' (Ex : =+(2,3) ==> +(2,3))
-  # $2 -> file result 
-  # $3 -> -scout 
+  # $2 -> file calcule 
+  # $3 -> -scin 
   # $4 -> -slout
-  # $5 -> line number of file
   # echo "OK"
   trouv=1
   value=$(echo "$1"| sed 's/^[a-z+-/\^\*]*(//; s/.$//')
+  res=""
   if [ "${1:0:5}" = 'shell' ]
   then
+    # echo "$1"
     trouv=0
     res=$($value)
-    echo "$res"
+    echo "${res}"
   fi
   # firstPart=$(echo "$1" | sed 's/.*(//; s/,.*//');
   # secondPart=$(echo "$1" | sed 's/.*,//; s/).*//');
@@ -85,7 +86,6 @@ calcule(){
 
     if [ "${1:0:1}" = '[' ]
     then
-    # echo "---- ${1:0:6} ---- "
       cellule=$(echo `expr $1 : "\(.*\).$"`)
       if [[ "${cellule:1}" =~ $CELLULE && ${1:(-1)} = ']' ]]
       then
@@ -130,9 +130,9 @@ calcule(){
         ligne=$( echo "${firstPart:1}" | cut -d c -f 1 )
         colonne=$( echo "${firstPart:1}" | cut -d c -f 2 )
         res=$(getCase ${ligne:0} ${colonne:0} $2 $3 $4)
-        if [[ $res = '' ]]
+        if [[ $res = '=' ]]
         then
-          res="=line($firstPart)"
+          res=$(calcule ${res:1} $2 $3 $4)
         else
           res=$(wc -l < $res)
           res=$(($res + 1))
@@ -177,51 +177,60 @@ calcule(){
     elif [[ $firstPart =~ $CELLULE && $secondPart =~ $CELLULE ]]
     then
       
-      res=$(getValueCellule $firstPart $secondPart $2 $3 $4 $5);
       if [ "${1:0:5}" = 'somme' ]
       then
-        if [ "$res" = 'NULL' ]
-        then 
-          res="=somme($firstPart,$secondPart)"
-        else
-          res=$(sommeCase $res);
-        fi
+        res=$(getValueCellule $firstPart $secondPart "$2" "$3" "$4" "$5");
+        res=$(sommeCase $res);
       elif [ "${1:0:7}" = 'moyenne' ]
       then
+        res=$(getValueCellule $firstPart $secondPart "$2" "$3" "$4" "$5");
         res=$(moyenneCase $res);
       elif [ "${1:0:8}" = 'variance' ]
       then
+        res=$(getValueCellule $firstPart $secondPart "$2" "$3" "$4" "$5");
+
         res=$(varianceCase $res);
       elif [ "${1:0:9}" = 'ecarttype' ]
       then
+        res=$(getValueCellule $firstPart $secondPart "$2" "$3" "$4" "$5");
         res=$(ecartTypeCase $res);
       elif [ "${1:0:7}" = 'mediane' ]
       then
+        res=$(getValueCellule $firstPart $secondPart "$2" "$3" "$4" "$5");
         res=$(medianeCase $res);
       elif [ "${1:0:4}" = 'mini' ]
       then
+        res=$(getValueCellule $firstPart $secondPart "$2" "$3" "$4" "$5");
         res=$(miniCase $res);
       elif [ "${1:0:4}" = 'maxi' ]
       then
+        res=$(getValueCellule $firstPart $secondPart "$2" "$3" "$4" "$5");
         res=$(maxiCase $res);
       fi
-    
-    else
+    fi 
 
-      if [[ $firstPart =~ $CELLULE ]]
+    if [ "$res" = '' ]
+    then 
+
+      # echo "$firstPart - $secondPart"
+      # exit
+      if [[ "$firstPart" =~ $CELLULE ]]
       then
-        firstPart=$(getCase ${firstPart:1:1} ${firstPart:3:1} $2 $3 $4)
-
+        ligne=$( echo "${firstPart:1}" | cut -d c -f 1 )
+        colonne=$( echo "${firstPart:1}" | cut -d c -f 2 )
+        firstPart=$(getCase ${ligne:0} ${colonne:0} "$2" "$3" "$4")
       elif ! [[ "$firstPart" =~ $NBR ]]
       then
         # echo "$firstPart"
         firstPart=$(calcule "$firstPart" $2 $3 $4)
       fi
 
-      if [[ $secondPart =~ $CELLULE ]]
+      if [[ "$secondPart" =~ $CELLULE ]]
       then
-        secondPart=$(getCase ${secondPart:1:1} ${secondPart:3:1} $2 $3 $4)
-      elif ! [[ "$secondPart" =~ $NBR || $secondPart == "" ]]
+        ligne=$( echo "${secondPart:1}" | cut -d c -f 1 )
+        colonne=$( echo "${secondPart:1}" | cut -d c -f 2 )
+        secondPart=$(getCase ${ligne:0} ${colonne:0} "$2" "$3" "$4")
+      elif ! [[ "$secondPart" =~ $NBR ]]
       then
         secondPart=$(calcule "$secondPart" $2 $3 $4)
       fi
@@ -277,7 +286,7 @@ calcule(){
       elif [ "${1:0:1}" = '/' ]
       then 
         res=$(division $firstPart $secondPart);
-
+        # res="$firstPart-$secondPart"
       elif [ "${1:0:1}" = '^' ]
       then 
         res=$(puissance $firstPart $secondPart);

@@ -254,7 +254,7 @@ subsituteChaine(){
     res=$(echo "$1" | sed "s/${chaine1:1}/${chaine2:1}/g")
     echo $res
 }
-
+ 
 # echo somme 2 1
 # echo difference 5 1
 # echo produit 5 2

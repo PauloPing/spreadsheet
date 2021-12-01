@@ -118,6 +118,7 @@ then
   else
     row=$(echo "$g" | sed  $nbRow'!d' $feuille )
   fi
+  sepa="$slinSep"
 else
   sepa="$"
   if test $slinSep != '\n'
@@ -129,16 +130,14 @@ fi
 
 while [ ! "$row" = "$g" ]
 do      
-  res=$(rowToResultFile "$row" $scinSep $scinSep $result $sloutSep)
+  res=$(rowToResultFile "$row" $scinSep $scoutSep $feuille $sepa)
   # echo $res;
   if test $result != "0"
   then
     if test $sloutSep = '\n'
     then
-      premierCalculte+="${res}$"
       printf "%s\n" ${res} >> $result
     else
-      premierCalculte+="${res}${sloutSep}"
       printf "%s%c" ${res}${sloutSep} >> $result
     fi
   else
@@ -164,43 +163,7 @@ do
     then
       sepa="$slinSep"
     fi
-    row=$(echo -n $feuille | cut -d"$sepa" -f $nbRow)
+    row=$(echo -e $feuille | cut -d"$sepa" -f $nbRow)
   fi
 done
 
-feuille=$premierCalculte
-
-
-nbRow=1
-sepa="$"
-if test $slinSep != '\n'
-then
-  sepa="$slinSep"
-fi
-row=$(echo -n $feuille | cut -d"$sepa" -f $nbRow)
-
-> $result
-
-while [ ! "$row" = "$g" ]
-do      
-  res=$(rowToResultFile "$row" $scinSep $scoutSep $premierCalculte '$')
-  echo "$res"
-  if test $result != "0"
-  then
-    if test $sloutSep = '\n'
-    then
-      printf "%s\n" ${res} >> $result
-    else
-      printf "%s%c" ${res}${sloutSep} >> $result
-    fi
-  else
-    if test "$sloutSep" != '\n'
-    then 
-      echo "$res$sloutSep"
-    else
-      echo "$res"
-    fi
-  fi
-  nbRow=$(($nbRow + 1))
-  row=$(echo -n $feuille | cut -d"$sepa" -f $nbRow)
-done
