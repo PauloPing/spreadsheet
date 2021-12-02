@@ -56,7 +56,7 @@ calcule(){
   trouv=1
   value=$(echo "$1"| sed 's/^[a-z+-/\^\*]*(//; s/.$//')
   res=""
-  if [ "${1:0:5}" = 'shell' ]
+  if [ "${1:0:5}" = "shell" ]
   then
     # echo "$1"
     trouv=0
@@ -86,12 +86,12 @@ calcule(){
 
     if [ "${1:0:1}" = '[' ]
     then
-      cellule=$(echo `expr $1 : "\(.*\).$"`)
+      cellule=$(echo `expr "$1" : "\(.*\).$"`)
       if [[ "${cellule:1}" =~ $CELLULE && ${1:(-1)} = ']' ]]
       then
         ligne=$( echo "${cellule:1}" | cut -d c -f 1 )
         colonne=$( echo "${cellule:1}" | cut -d c -f 2 )
-        res=$(getCase ${ligne:1} ${colonne:0} $2 $3 $4)
+        res=$(getCase "${ligne:1}" "${colonne:0}" "$2" "$3" "$4")
         if [[ $res = '' ]]
         then 
           res="=[${ligne}c${colonne}]"
@@ -108,7 +108,7 @@ calcule(){
       then
         ligne=$( echo "${firstPart:1}" | cut -d c -f 1 )
         colonne=$( echo "${firstPart:1}" | cut -d c -f 2 )
-        res=$(getCase ${ligne:0} ${colonne:0} $2 $3 $4)
+        res=$(getCase "${ligne:0}" "${colonne:0}" "$2" "$3" "$4")
         if [[ -f $res ]]
         then
           res=$(wc -c < "$res")
@@ -129,7 +129,7 @@ calcule(){
       then
         ligne=$( echo "${firstPart:1}" | cut -d c -f 1 )
         colonne=$( echo "${firstPart:1}" | cut -d c -f 2 )
-        res=$(getCase ${ligne:0} ${colonne:0} $2 $3 $4)
+        res=$(getCase "${ligne:0}" "${colonne:0}" "$2" "$3" "$4")
         if [[ $res = '=' ]]
         then
           res=$(calcule ${res:1} $2 $3 $4)
@@ -218,7 +218,7 @@ calcule(){
       then
         ligne=$( echo "${firstPart:1}" | cut -d c -f 1 )
         colonne=$( echo "${firstPart:1}" | cut -d c -f 2 )
-        firstPart=$(getCase ${ligne:0} ${colonne:0} "$2" "$3" "$4")
+        firstPart=$(getCase "${ligne:0}" "${colonne:0}" "$2" "$3" "$4")
       elif ! [[ "$firstPart" =~ $NBR ]]
       then
         # echo "$firstPart"
@@ -229,7 +229,7 @@ calcule(){
       then
         ligne=$( echo "${secondPart:1}" | cut -d c -f 1 )
         colonne=$( echo "${secondPart:1}" | cut -d c -f 2 )
-        secondPart=$(getCase ${ligne:0} ${colonne:0} "$2" "$3" "$4")
+        secondPart=$(getCase "${ligne:0}" "${colonne:0}" "$2" "$3" "$4")
       elif ! [[ "$secondPart" =~ $NBR ]]
       then
         secondPart=$(calcule "$secondPart" $2 $3 $4)
@@ -333,7 +333,7 @@ rowToResultFile(){
     fi
     if [[ ${column:0:1} = '=' ]]
     then
-      res=$(calcule "${column:1}" $4 $2 $5 $indexRow)
+      res=$(calcule "${column:1}" "$4" "$2" "$5" "$indexRow")
       column=$res;
     fi
     ROW+="${column}"

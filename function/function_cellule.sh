@@ -12,16 +12,17 @@ getCase(){
   res=""
   if test "$5" = '\n'
   then
-    line=$(sed  $1'!d' "$3")
-    line="$line$4"
-    res=$(echo "$line" | cut -d "$4" -f "$2" | cut -d "\\" -f 1)
+      line=$(sed  $1'!d' "$3")
+      line="$line$4"
+      res=$(echo "$line" | cut -d "$4" -f "$2" | cut -d "\\" -f 1)
     # res="line $line"
   else
-    if [ -f $3 ]
+    if [ -f "$3" ]
     then
       res=$(cut -d "$5" -f "$1" "$3" | cut -d "$4" -f "$2")
     else
-      res=$(echo "$3" | cut -d "$5" -f "$1" | cut -d "$4" -f "$2" | cut -d "\\" -f 1)
+      res=$(echo "$3" | cut -d "$5" -f "$1")
+      res=$(echo "$res$4" | cut -d "$4" -f "$2")
     fi
   fi
   if [[ ${res:0:1} = '=' ]]
@@ -48,10 +49,16 @@ getValueCellule(){
     valid=0
     noCellule=1
 
-    ligneCellule1="${1:1:1}"
-    ligneCellule2="${2:1:1}"
-    colonneCellule1="${1:3:1}"
-    colonneCellule2="${2:3:1}"
+    ligneCellule1=$( echo "${1:1}" | cut -d "c" -f 1 )
+    colonneCellule1=$( echo "${1:1}" | cut -d "c" -f 2 )
+
+    ligneCellule2=$( echo "${2:1}" | cut -d "c" -f 1 )
+    colonneCellule2=$( echo "${2:1}" | cut -d "c" -f 2 )
+
+    # ligneCellule1="${1:1:1}"
+    # ligneCellule2="${2:1:1}"
+    # colonneCellule1="${1:3:1}"
+    # colonneCellule2="${2:3:1}"
 
     if [[ $ligneCellule1 =~ $NBR_CASE && $colonneCellule1 =~ $NBR_CASE && $ligneCellule2 =~ $NBR_CASE && $colonneCellule2 =~ $NBR_CASE && $ligneCellule1 -le $ligneCellule2 && $colonneCellule1 -le $colonneCellule2 ]]
     then
@@ -60,7 +67,7 @@ getValueCellule(){
         colonne=$colonneCellule1
         while [[ $colonne -le $colonneCellule2 ]]
         do
-          value=$(getCase $ligneCellule1 $colonne "$3" "$4" "$5");
+          value=$(getCase "$ligneCellule1" "$colonne" "$3" "$4" "$5");
           if [[ "$ligneCellule1" -eq "$6" || "$ligneCellule2" -eq "$6" ]]
           then 
             if [[ "$value" = '' ]]

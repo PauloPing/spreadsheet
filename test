@@ -5,69 +5,24 @@
 1:=+(size(calcule),line(calcule)):=shell(expr 12 + 89)
 1:=+(+(somme(l1c1,l2c4),4),7.70):=[l9c3]
 =concat(subsitute("aabbccaa",concat("a","a"),"dd"),"2222")
-=+(3,5):  :  :10
+=+(3,5):15:1510
 1:5
 =[l14c1]
 3:=size(l1c6):=+([l1c6],+(123,+(l12c1,10)))
 =+(3,5):1:2:3:=somme(l1c1,l1c3)
 4:=[l1c4]:7:=moyenne(l2c1,l2c3)
-=+(l1c1,size(l3c3)):=shell(expr 12 + 89):/bin/ls
-1:2:3€4:5:=+(34,5)€1:=[l2c4]:3€=ln(-(+(18,3),20))
+=+(l1c1,size(l3c3)):=shell(expr 12 + 89):/bin/ls:=/(l3c1,l3c2)
 
-=mediane(L1C1,L2C4)
-A FAIRE ERREUR 
+=shell(expr 12 + 89):=[l1c1] 
 
+1:2:3
+4:5
+6:7:8:9:10
+11:12
 
+1:2:3
+4:5
+6:7:=+(l2c1,l2c1):9:=+(5,5)
+=+(l3c5,1):12
 
-
-getPartOfParam(){
-  # $1 => ligne
-  # $2 -> Param 1 or 2 
-  param=""
-  compteur=0
-  virgule=0
-
-  carac=${1:$compteur:1}
-  trouv=0
-
-  while test "$carac" != ''
-  do
-    if [[ $carac == ',' && $virgule == 0 ]]
-    then 
-      if [[ $2 == 1 ]]
-      then 
-        trouv=1
-        echo $param
-      else
-        param=""
-        while test "$carac" != ''
-        do
-          compteur=$(($compteur + 1))
-          carac=${1:$compteur:1}
-          param+="$carac"
-        done
-        trouv=1
-        echo $param
-      fi
-    else
-      param+="$carac"
-
-      if  test "$carac" == '('
-      then 
-        virgule=$(($virgule + 1))
-      elif test "$carac" == ')'
-      then
-        virgule=$(($virgule - 1))
-      fi
-    fi
-    compteur=$(($compteur + 1))
-    carac=${1:$compteur:1}
-  done
-
-  param+=")"
-  if test $trouv == 0
-  then
-    res=$(echo "$param" | sed 's/^\([a-z]*\)(//; s/.$//')
-    echo $res
-  fi
-}
+1:2:3€4:5€6:7:=+(l2c1,l2c1):9:=+(5,5)€=+(l3c5,1):12

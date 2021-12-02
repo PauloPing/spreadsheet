@@ -53,7 +53,6 @@ do
   compteur=$(($compteur + 1));
 done
 
-# Param inverse ### A CORRIGER : FONCTIONNE PAS SI -inverse N'EST PAS EN DERNIER PARAM
 if [[ ${!compteur} == "-inverse" ]]
 then 
   inverse=1
@@ -114,9 +113,9 @@ if [[ -f $feuille ]]
 then
   if test $slinSep != '\n'
   then
-    row=$(cat $feuille | cut -d"$slinSep" -f $nbRow)
+    row=$(cat "$feuille" | cut -d "$slinSep" -f $nbRow)
   else
-    row=$(echo "$g" | sed  $nbRow'!d' $feuille )
+    row=$(echo "$g" | sed  $nbRow'!d' "$feuille")
   fi
   sepa="$slinSep"
 else
@@ -125,27 +124,47 @@ else
   then
     sepa="$slinSep"
   fi
-  row=$(echo -n $feuille | cut -d"$sepa" -f $nbRow)
+  row=$(echo -n "$feuille" | cut -d"$sepa" -f $nbRow)
 fi
 
+feuilleInverse=""
 while [ ! "$row" = "$g" ]
 do      
-  res=$(rowToResultFile "$row" $scinSep $scoutSep $feuille $sepa)
+  res=$(rowToResultFile "$row" "$scinSep" "$scoutSep" "$feuille" "$sepa")
   # echo $res;
   if test $result != "0"
   then
     if test $sloutSep = '\n'
     then
-      printf "%s\n" ${res} >> $result
+      if test $inverse = 1
+      then
+        feuilleInverse+="${res}$"
+      else
+        printf "%s\n" ${res} >> $result
+      fi
     else
-      printf "%s%c" ${res}${sloutSep} >> $result
+      if test $inverse = 1
+      then
+        feuilleInverse+="${res}$"
+      else
+        printf "%s%c" ${res}${sloutSep} >> $result
+      fi
+      # feuilleInverse+="${res}${sloutSep}"
     fi
   else
     if test "$sloutSep" != '\n'
     then 
-      echo "$res$sloutSep"
+      feuilleInverse+="$res$"
+      if test $inverse != 1
+      then
+        echo "$res$sloutSep"
+      fi
     else
-      echo "$res"
+      feuilleInverse+="$res$"
+      if test $inverse != 1
+      then
+        echo "$res"
+      fi
     fi
   fi
   nbRow=$(($nbRow + 1))
@@ -153,7 +172,7 @@ do
   then
     if test $slinSep != '\n'
     then
-      row=$(cat $feuille | cut -d"$slinSep" -f $nbRow)
+      row=$(cat "$feuille" | cut -d"$slinSep" -f $nbRow)
     else
       row=$(echo "$g" | sed  $nbRow'!d' $feuille )
     fi
@@ -163,7 +182,42 @@ do
     then
       sepa="$slinSep"
     fi
-    row=$(echo -e $feuille | cut -d"$sepa" -f $nbRow)
+    row=$(echo -e "$feuille" | cut -d "$sepa" -f $nbRow)
   fi
 done
+
+# echo $feuilleInverse
+
+nbRow=$(($nbRow - 1))
+compteur=1
+if test $inverse = 1
+then 
+  nbColumn=1
+  res=$(getValueCellule "l1c${nbColumn}" "l${nbRow}c${nbColumn}" "$feuilleInverse" "$scoutSep" "$")
+  while test "$res" != "NULL"
+  do
+    compteur=1
+    myLign=""
+    col=$(echo "$res" | cut -d "," -f "$compteur")
+    while test "$col" != "END"
+    do
+      if test $compteur != 1
+      then
+        myLign+="$scoutSep"
+      fi
+      myLign+="$col"
+      compteur=$(($compteur + 1))
+      col=$(echo "$res" | cut -d "," -f "$compteur")
+    done
+    if [ -f $result ]
+    then
+        echo "$myLign" >> $result
+    else
+      echo "$myLign"
+    fi
+    nbColumn=$(($nbColumn + 1))
+    compteur=$(($compteur + 1))
+    res=$(getValueCellule "l1c${nbColumn}" "l${nbRow}c${nbColumn}" "$feuilleInverse" "$scoutSep" "$")
+  done
+fi
 
