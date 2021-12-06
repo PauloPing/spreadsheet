@@ -5,6 +5,7 @@
 Le projet a été réalisé à l'aide de github.
 Toutes les fonctionnalités ont été réalisées.
 
+Exemple de commande pour essayer : ./tableur.sh -in calcule -out resultat -scin : -scout '|'
 # Part (en pourcentage) de travail de chacun des membres:
 
 - Paul : 50%
