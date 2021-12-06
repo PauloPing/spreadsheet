@@ -1,23 +1,18 @@
 #!/bin/bash
 
 somme(){
-    # expr $1 + $2
-    # echo "(( $1-$2 ))"
     expr $(bc -l <<<"scale=2; $1 + $2")
 }
 
 difference(){
-    # expr $1 - $2
     expr $(bc -l <<<"scale=2; $1 - $2")
 }
 
 produit(){
-    # expr $1 \* $2
     expr $(bc -l <<<"scale=2; $1 * $2")
 }
 
 division(){
-    # expr $1 / $2
     expr $(bc -l <<<"scale=2; $1 / $2")
 }
 
@@ -27,7 +22,7 @@ moyenneCase(){
     res=0
     index=1
     nbNombre=0;
-    valueCase=$(echo "$1" | cut -d ',' -f $index) # $(echo "$1" | cut -d $2 -f $nbColumn)
+    valueCase=$(echo "$1" | cut -d ',' -f $index)
     while [[ $valueCase != "END" ]]
     do
         if [[ $valueCase =~ $NBR ]]
@@ -219,7 +214,6 @@ medianeCase(){
 }
 
 ln(){
-    # echo "scale=2; l($1)" | bc -l 
     expr $(bc -l <<<"scale=2; l($1)")
 
 }
@@ -254,12 +248,3 @@ subsituteChaine(){
     res=$(echo "$1" | sed "s/${chaine1:1}/${chaine2:1}/g")
     echo $res
 }
- 
-# echo somme 2 1
-# echo difference 5 1
-# echo produit 5 2
-# echo division 8 2
-# echo puissance 5 2
-# echo ln 2
-# echo exp 2
-# echo sqrt 25

@@ -22,9 +22,6 @@ getPartOfParam(){
     if  [[ "$carac" == '(' ]]
     then 
       nbCalcule=$(($nbCalcule + 1))
-    # elif [[ $carac == ',' && $nbCalcule -eq 0 ]]
-    # then 
-    #   virgule=$(($virgule - 1))
     elif [[ "$carac" == ')' ]]
     then 
       nbCalcule=$(($nbCalcule - 1))
@@ -57,7 +54,6 @@ calcule(){
   res=""
   if [ "${1:0:5}" = "shell" ]
   then
-    # echo "$1"
     trouv=0
     res=$($value)
     echo "${res}"
@@ -180,11 +176,11 @@ calcule(){
       then
         res=$(getValueCellule $firstPart $secondPart "$2" "$3" "$4" "$5");
         res=$(medianeCase $res);
-      elif [ "${1:0:4}" = 'mini' ]
+      elif [ "${1:0:3}" = 'min' ]
       then
         res=$(getValueCellule $firstPart $secondPart "$2" "$3" "$4" "$5");
         res=$(miniCase $res);
-      elif [ "${1:0:4}" = 'maxi' ]
+      elif [ "${1:0:3}" = 'max' ]
       then
         res=$(getValueCellule $firstPart $secondPart "$2" "$3" "$4" "$5");
         res=$(maxiCase $res);
@@ -194,8 +190,6 @@ calcule(){
     if [ "$res" = '' ]
     then 
 
-      # echo "$firstPart - $secondPart"
-      # exit
       if [[ "$firstPart" =~ $CELLULE ]]
       then
         ligne=$( echo "${firstPart:1}" | cut -d c -f 1 )
@@ -203,7 +197,6 @@ calcule(){
         firstPart=$(getCase "${ligne:0}" "${colonne:0}" "$2" "$3" "$4")
       elif ! [[ "$firstPart" =~ $NBR ]]
       then
-        # echo "$firstPart"
         firstPart=$(calcule "$firstPart" $2 $3 $4)
       fi
 
@@ -216,11 +209,6 @@ calcule(){
       then
         secondPart=$(calcule "$secondPart" $2 $3 $4)
       fi
-
-      # if ! [[ $secondPart =~ $NBR || $secondPart == "" ]]
-      # then
-      #   firstPart=$(calcule $secondPart $2 $3 $4)
-      # fi
 
       if [ "${firstPart:0:1}" = '.' ]
       then 
@@ -252,9 +240,7 @@ calcule(){
         
       elif [ "${1:0:1}" = '+' ]
       then
-        # res="$firstPart-$secondPart"
         res=$(somme $firstPart $secondPart);
-        # echo "$firstPart === $secondPart"
 
       elif [ "${1:0:1}" = '-' ]
       then 
@@ -263,12 +249,10 @@ calcule(){
       elif [ "${1:0:1}" = '*' ]
       then 
         res=$(produit $firstPart $secondPart);
-        # res=$firstPart
 
       elif [ "${1:0:1}" = '/' ]
       then 
         res=$(division $firstPart $secondPart);
-        # res="$firstPart-$secondPart"
       elif [ "${1:0:1}" = '^' ]
       then 
         res=$(puissance $firstPart $secondPart);

@@ -15,7 +15,6 @@ getCase(){
       line=$(sed  $1'!d' "$3")
       line="$line$4"
       res=$(echo "$line" | cut -d "$4" -f "$2" | cut -d "\\" -f 1)
-    # res="line $line"
   else
     if [ -f "$3" ]
     then
@@ -25,11 +24,9 @@ getCase(){
       res=$(echo "$res$4" | cut -d "$4" -f "$2")
     fi
   fi
-  # echo "5"
   if [[ ${res:0:1} = '=' ]]
   then
     res=$(calcule "${res:1}" "$3" "$4" "$5")
-    # res=${res:1}
   elif [[ $res =~ $CELLULE ]]
   then
     res=$(calcule "${res}" "$3" "$4" "$5")
@@ -64,13 +61,6 @@ getValueCellule(){
         while [[ $colonne -le $colonneCellule2 ]]
         do
           value=$(getCase "$ligneCellule1" "$colonne" "$3" "$4" "$5");
-          # if [[ "$ligneCellule1" -eq "$6" || "$ligneCellule2" -eq "$6" ]]
-          # then 
-          #   if [[ "$value" = '' ]]
-          #   then 
-          #     noCellule=0
-          #   fi
-          # fi
           if [ "$value" != '' ]
           then
             valid=1

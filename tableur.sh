@@ -85,7 +85,6 @@ echo "sloutSep : $sloutSep"
 echo "inverse : $inverse"
 
 character=0
-# sed -n '${count}p' hearders.txt => reprendre un fichier au '${count}p' ieme caractère (PAS TEST)
 
 premierCalculte=""
 
@@ -159,11 +158,8 @@ do
       sepa="$slinSep"
     fi
     row=$(echo -e "$feuille" | cut -d "$sepa" -f $nbRow)
-    # echo $row;
   fi
 done
-
-# echo $feuilleInverse
 
 nbRow=$(($nbRow - 1))
 compteur=1
