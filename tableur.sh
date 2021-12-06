@@ -108,12 +108,13 @@ then
   # echo -e $feuille
 fi
 
+echo "Calcule en cours ..."
 nbRow=1
 if [[ -f $feuille ]]
 then
   if test $slinSep != '\n'
   then
-    row=$(cat "$feuille" | cut -d "$slinSep" -f $nbRow)
+    row=$(cat "$feuille" | cut -d "$slinSep" -f "$nbRow")
   else
     row=$(echo "$g" | sed  $nbRow'!d' "$feuille")
   fi
@@ -128,53 +129,28 @@ else
 fi
 
 feuilleInverse=""
+celluleDisplayX=""
+celulleDisplayY=""
 while [ ! "$row" = "$g" ]
 do      
   res=$(rowToResultFile "$row" "$scinSep" "$scoutSep" "$feuille" "$sepa")
-  # echo $res;
-  if test $result != "0"
+  display=$(echo "$row" | grep -Eo "=display\([c,l,0-9]*\)*\)" | cut -d "(" -f 2 | cut -d ")" -f 1)
+  if test "$display" != ''
   then
-    if test $sloutSep = '\n'
-    then
-      if test $inverse = 1
-      then
-        feuilleInverse+="${res}$"
-      else
-        printf "%s\n" ${res} >> $result
-      fi
-    else
-      if test $inverse = 1
-      then
-        feuilleInverse+="${res}$"
-      else
-        printf "%s%c" ${res}${sloutSep} >> $result
-      fi
-      # feuilleInverse+="${res}${sloutSep}"
-    fi
-  else
-    if test "$sloutSep" != '\n'
-    then 
-      feuilleInverse+="$res$"
-      if test $inverse != 1
-      then
-        echo "$res$sloutSep"
-      fi
-    else
-      feuilleInverse+="$res$"
-      if test $inverse != 1
-      then
-        echo "$res"
-      fi
-    fi
+    celluleDisplayX+=$(echo "$display" | cut -d ',' -f 1 )
+    celluleDisplayX+="-"
+    celluleDisplayY+=$(echo "$display" | cut -d ',' -f 2 )
+    celluleDisplayY+="-"
   fi
+  feuilleInverse+="${res}$"
   nbRow=$(($nbRow + 1))
   if [[ -f $feuille ]]
   then
     if test $slinSep != '\n'
     then
-      row=$(cat "$feuille" | cut -d"$slinSep" -f $nbRow)
+      row=$(cat "$feuille" | cut -d"$slinSep" -f "$nbRow")
     else
-      row=$(echo "$g" | sed  $nbRow'!d' $feuille )
+      row=$(echo "$g" | sed  $nbRow'!d' "$feuille" )
     fi
   else
     sepa="$"
@@ -183,6 +159,7 @@ do
       sepa="$slinSep"
     fi
     row=$(echo -e "$feuille" | cut -d "$sepa" -f $nbRow)
+    # echo $row;
   fi
 done
 
@@ -211,7 +188,12 @@ then
     done
     if [ -f $result ]
     then
+      if test "$sloutSep" != '\n'
+      then 
+        echo -n "$myLign$sloutSep" >> $result
+      else
         echo "$myLign" >> $result
+      fi
     else
       echo "$myLign"
     fi
@@ -219,5 +201,72 @@ then
     compteur=$(($compteur + 1))
     res=$(getValueCellule "l1c${nbColumn}" "l${nbRow}c${nbColumn}" "$feuilleInverse" "$scoutSep" "$")
   done
+else
+  nbRow=1
+  display=1
+  sepa="$"
+  if test "$celluleDisplayX" == ''
+  then
+    row=$(echo "$feuilleInverse" | cut -d "$sepa" -f $nbRow)
+  else
+    displayX=$(echo "$celluleDisplayX" | cut -d '-' -f $display)
+    displayY=$(echo "$celluleDisplayY" | cut -d '-' -f $display)
+    row=$(returnValueCelluleInResult $feuilleInverse $scoutSep $displayX $displayY)
+  fi
+  while [ ! "$row" = "$g" ]
+  do
+    if test "$celluleDisplayX" == ''
+    then
+      if test $result != 0
+      then
+        if test $sloutSep = '\n'
+        then
+          printf "%s\n" ${row} >> $result
+        else
+          printf "%s%c" ${row}${sloutSep} >> $result
+        fi
+      else
+        if test "$sloutSep" != '\n'
+        then 
+          echo -n "$row$sloutSep"
+        else
+          echo "$row"
+        fi
+      fi
+    else
+      nbRowAffichage=1
+      affichage=$(echo "$row" | cut -d "$" -f $nbRowAffichage)
+      while test "$affichage" != ""
+      do
+        if [ -f $result ]
+        then
+          if test "$sloutSep" != '\n'
+          then
+            echo "$affichage$sloutSep" >> $result
+          else
+            echo "$affichage" >> $result
+          fi
+        else
+          if test "$sloutSep" != '\n'
+          then
+            echo "$affichage$sloutSep"
+          else
+            echo -e "$affichage"
+          fi
+        fi
+        nbRowAffichage=$(($nbRowAffichage + 1))
+        affichage=$(echo "$row" | cut -d "$" -f $nbRowAffichage)
+      done
+    fi
+    if test "$celluleDisplayX" == ''
+    then
+      nbRow=$(($nbRow + 1))
+      row=$(echo "$feuilleInverse" | cut -d "$sepa" -f $nbRow)
+    else
+      display=$(($display + 1))
+      displayX=$(echo "$celluleDisplayX" | cut -d "-" -f $display)
+      displayY=$(echo "$celluleDisplayY" | cut -d "-" -f $display)
+      row=$(returnValueCelluleInResult $feuilleInverse $scoutSep $displayX $displayY)
+    fi
+  done
 fi
-

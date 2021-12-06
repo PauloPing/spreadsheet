@@ -4,7 +4,6 @@ TODO :
 
 - Faire les fonctions :
   - display
-- Ecrire l'inverse si option -inverse active
 
 **Groupe : Louis et Paul**
 

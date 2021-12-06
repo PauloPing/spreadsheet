@@ -52,7 +52,6 @@ calcule(){
   # $2 -> file calcule 
   # $3 -> -scin 
   # $4 -> -slout
-  # echo "OK"
   trouv=1
   value=$(echo "$1"| sed 's/^[a-z+-/\^\*]*(//; s/.$//')
   res=""
@@ -63,27 +62,10 @@ calcule(){
     res=$($value)
     echo "${res}"
   fi
-  # firstPart=$(echo "$1" | sed 's/.*(//; s/,.*//');
-  # secondPart=$(echo "$1" | sed 's/.*,//; s/).*//');
-  
-  # echo "+(*(4, 5),4)" | sed 's/^.(//; s/.$//'         *(4, 5),4
   if test $trouv == 1
   then
     firstPart=$(getPartOfParam "$value" 1)
     secondPart=$(getPartOfParam "$value" 2)
-    # echo $value
-    # echo "$ $firstPart / $secondPart $ ))"
-    # echo "(( $firstPart // $secondPart ))"
-    # if [[ $firstPart =~ $CELLULE ]]
-    # then
-    #   firstPart=$(getCase ${firstPart:1:1} ${firstPart:3:1} $2 $3 $4)
-    # fi 
-
-    # if [[ $secondPart =~ $CELLULE ]]
-    # then
-    #   secondPart=$(getCase ${secondPart:1:1} ${secondPart:3:1} $2 $3 $4)
-    # fi
-
     if [ "${1:0:1}" = '[' ]
     then
       cellule=$(echo `expr "$1" : "\(.*\).$"`)
@@ -309,7 +291,12 @@ calcule(){
       fi
 
     fi
-    echo $res
+    if [ "$res" = "" ]
+    then 
+      echo "=$1"
+    else 
+      echo $res
+    fi
   fi
 
 }
@@ -324,7 +311,7 @@ rowToResultFile(){
   nbColumn=1
   ROW=""
   indexRow=1
-  column=$(echo "${1}$2" | cut -d "$2" -f $nbColumn)
+  column=$(echo "${1}$2" | cut -d "$2" -f "$nbColumn")
   while [ -n "$column" ]
   do
     if test $nbColumn != 1
@@ -341,5 +328,5 @@ rowToResultFile(){
     nbColumn=$(($nbColumn + 1));
     column=$(echo "${1}$2" | cut -d "$2" -f $nbColumn)
   done
-  echo $ROW;
+  echo "$ROW";
 }

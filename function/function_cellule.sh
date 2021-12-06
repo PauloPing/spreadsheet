@@ -25,6 +25,7 @@ getCase(){
       res=$(echo "$res$4" | cut -d "$4" -f "$2")
     fi
   fi
+  # echo "5"
   if [[ ${res:0:1} = '=' ]]
   then
     res=$(calcule "${res:1}" "$3" "$4" "$5")
@@ -55,11 +56,6 @@ getValueCellule(){
     ligneCellule2=$( echo "${2:1}" | cut -d "c" -f 1 )
     colonneCellule2=$( echo "${2:1}" | cut -d "c" -f 2 )
 
-    # ligneCellule1="${1:1:1}"
-    # ligneCellule2="${2:1:1}"
-    # colonneCellule1="${1:3:1}"
-    # colonneCellule2="${2:3:1}"
-
     if [[ $ligneCellule1 =~ $NBR_CASE && $colonneCellule1 =~ $NBR_CASE && $ligneCellule2 =~ $NBR_CASE && $colonneCellule2 =~ $NBR_CASE && $ligneCellule1 -le $ligneCellule2 && $colonneCellule1 -le $colonneCellule2 ]]
     then
       while [[ $ligneCellule1 -le $ligneCellule2 ]]
@@ -68,13 +64,13 @@ getValueCellule(){
         while [[ $colonne -le $colonneCellule2 ]]
         do
           value=$(getCase "$ligneCellule1" "$colonne" "$3" "$4" "$5");
-          if [[ "$ligneCellule1" -eq "$6" || "$ligneCellule2" -eq "$6" ]]
-          then 
-            if [[ "$value" = '' ]]
-            then 
-              noCellule=0
-            fi
-          fi
+          # if [[ "$ligneCellule1" -eq "$6" || "$ligneCellule2" -eq "$6" ]]
+          # then 
+          #   if [[ "$value" = '' ]]
+          #   then 
+          #     noCellule=0
+          #   fi
+          # fi
           if [ "$value" != '' ]
           then
             valid=1
@@ -95,5 +91,52 @@ getValueCellule(){
       echo $res
     else
       echo "NULL"
+    fi
+}
+
+returnValueCelluleInResult(){
+    # $1 ==> feuille
+    # $2 ==> separateur de col
+    # $3 ==> celluleX 
+    # $4 ==> celluleY
+
+    res=""
+    valid=1
+
+    if [[ "$3" != "" && "$4" != "" ]]
+    then
+      ligneCellule1=$( echo "${3:1}" | cut -d "c" -f 1 )
+      colonneCellule1=$( echo "${3:1}" | cut -d "c" -f 2 )
+
+      ligneCellule2=$( echo "${4:1}" | cut -d "c" -f 1 )
+      colonneCellule2=$( echo "${4:1}" | cut -d "c" -f 2 )
+
+      if [[ $ligneCellule1 =~ $NBR_CASE && $colonneCellule1 =~ $NBR_CASE && $ligneCellule2 =~ $NBR_CASE && $colonneCellule2 =~ $NBR_CASE && $ligneCellule1 -le $ligneCellule2 && $colonneCellule1 -le $colonneCellule2 ]]
+      then
+        while [[ $ligneCellule1 -le $ligneCellule2 ]]
+        do  
+          ligne=""
+          colonne=$colonneCellule1
+          while [[ $colonne -le $colonneCellule2 && $valid -eq 1 ]]
+          do
+            value=$(getCase "$ligneCellule1" "$colonne" "$1" "$2" "$");
+            if [ "$value" != '' ]
+            then
+              valid=1
+              ligne+="$value$2"
+              colonne=$(($colonne + 1))
+            else 
+              valid=0
+            fi
+          done
+          colonne=colonneCellule1;
+          res+="$(echo $ligne | sed 's/.$//')"
+          res+="$"
+          ligneCellule1=$(($ligneCellule1 + 1))
+        done
+      fi
+      echo "$res"
+    else
+      echo "$res"
     fi
 }
