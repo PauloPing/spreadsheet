@@ -1,18 +1,8 @@
-# project-unix
+# unix-project
 
-**Groupe : Louis et Paul**
+**Team : Louis et Paul**
 
-Le projet a été réalisé à l'aide de github.
-Toutes les fonctionnalités ont été réalisées.
+# Subject :
 
-Exemple de commande pour essayer : ./tableur.sh -in calcule -out resultat -scin : -scout '|'
-# Part (en pourcentage) de travail de chacun des membres:
-
-- Paul : 50%
-- Louis : 50%
-
-# Problème :
-
-- La méthode shell ne se réalise pas dans tous les cas quand on rentre celle-ci dans le terminal.
-- MEDIANE erreur : (standard_in) 2: parse error
-- La methode fonctionne mais j'ai toujours cette erreur dans le terminal.
+  In this reposetory, You will find a spreadsheet made only with the shell.
+  It is a project at the end of the first semester in the 3rd year of the license.
